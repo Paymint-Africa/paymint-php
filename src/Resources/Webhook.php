@@ -23,7 +23,7 @@ class Webhook
             return false;
         }
 
-        $expectedSignature = hash_hmac('sha256', $payload, $this->secretKey);
+        $expectedSignature = hash_hmac('sha512', $payload, $this->secretKey);
 
         // Use hash_equals to prevent timing attacks
         return hash_equals($expectedSignature, $signature);
