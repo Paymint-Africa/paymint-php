@@ -1,6 +1,6 @@
-# PayMint Africa PHP SDK
+﻿# PayMint Africa PHP SDK
 
-The official PHP SDK for PayMint Africa. This SDK allows you to easily integrate PayMint's powerful virtual accounts and secure webhooks into any core PHP application.
+The official PHP SDK for PayMint Africa. This SDK allows you to easily integrate PayMint's powerful checkout, virtual accounts, and secure webhooks into any core PHP application.
 
 ## Installation
 
@@ -24,31 +24,59 @@ require 'vendor/autoload.php';
 
 use PayMint\PayMintClient;
 
-// 1. Initialize the SDK
-$paymint = new PayMintClient('sk_live_your_secret_key');
+$paymint = new PayMintClient('sec_live_your_secret_key');
+```
 
-// 2. Create a Virtual Account
+### 1. Hosted Checkout (Accept Payments)
+
+Accept payments with PayMint's hosted checkout experience:
+
+```php
+// Initialize Checkout
+$checkout = $paymint->checkout()->initialize([
+    'amount'       => 5000,
+    'email'        => 'customer@example.com',
+    'reference'    => 'ORDER_12345', // Optional unique reference
+    'redirect_url' => 'https://mywebsite.com/payment/callback',
+    'name'         => 'John Doe',     // Optional
+    'phone'        => '08012345678', // Optional
+]);
+
+// Redirect customer to the payment page
+header('Location: ' . $checkout['data']['authorization_url']);
+exit;
+
+// Verify Payment upon return
+$payment = $paymint->checkout()->verify('ORDER_12345');
+
+if ($payment['data']['status'] === 'successful') {
+    // Transaction is verified! Give value to customer
+}
+```
+
+### 2. Dedicated Virtual Accounts
+
+Create dynamic or dedicated virtual accounts:
+
+```php
 $response = $paymint->virtualAccounts()->create([
-    'name' => 'John Doe',
+    'name'  => 'John Doe',
     'email' => 'john@example.com',
     'phone' => '08012345678',
-    'bvn' => '12345678901' // Optional depending on your strict compliance settings
+    'bvn'   => '12345678901' // Optional
 ]);
 
 print_r($response);
 ```
 
-### Webhook Signature Verification
+### 3. Webhook Signature Verification
 
-When receiving webhooks (like when a customer transfers money to a virtual account), you must verify the signature to ensure the request actually came from PayMint and wasn't spoofed by a hacker.
-
-The SDK makes this effortless:
+When receiving webhooks, verify the signature to ensure the request came from PayMint:
 
 ```php
-$payload = file_get_contents('php://input');
+$payload   = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_PAYMINT_SIGNATURE'] ?? '';
 
-// Verify the signature securely
 if (!$paymint->webhooks()->verifySignature($payload, $signature)) {
     http_response_code(401);
     die('Invalid signature detected.');
