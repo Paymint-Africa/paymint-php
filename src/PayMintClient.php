@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 namespace PayMint;
 
 use GuzzleHttp\Client;
