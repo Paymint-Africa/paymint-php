@@ -1,4 +1,4 @@
-﻿# PayMint Africa PHP SDK
+# PayMint Africa PHP SDK
 
 The official PHP SDK for PayMint Africa. This SDK allows you to easily integrate PayMint's powerful checkout, virtual accounts, and secure webhooks into any core PHP application.
 
